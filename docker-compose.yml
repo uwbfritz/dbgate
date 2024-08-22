@@ -1,0 +1,102 @@
+version: '3'
+services:
+  dbgate:
+    env_file:
+      - .env
+    image: dbgate/dbgate:beta
+    restart: unless-stopped
+    ports:
+      - 80:3000
+    volumes:
+      - ./dbgate-data:/root/.dbgate
+      - ./sqlite:/mnt/sqlite
+    environment:
+      CONNECTIONS: con1,con2,con3,con4,con5,con6
+
+      LABEL_con1: MySql
+      SERVER_con1: mysql
+      USER_con1: root
+      PASSWORD_con1: $DB_PASSWORD
+      PORT_con1: 3306
+      ENGINE_con1: mysql@dbgate-plugin-mysql
+
+      LABEL_con2: Postgres
+      SERVER_con2: postgres
+      USER_con2: postgres
+      PASSWORD_con2: $DB_PASSWORD
+      PORT_con2: 5432
+      ENGINE_con2: postgres@dbgate-plugin-postgres
+
+      LABEL_con3: MongoDB
+      URL_con3: mongodb://mongo:27017
+      ENGINE_con3: mongo@dbgate-plugin-mongo
+
+      LABEL_con4: sqlite
+      FILE_con4: /mnt/sqlite/db.sqlite
+      ENGINE_con4: sqlite@dbgate-plugin-sqlite
+
+      LABEL_con5: Redis
+      URL_con5: redis://redis:6379
+      ENGINE_con5: redis@dbgate-plugin-redis
+
+      LABEL_con6: SqlServer
+      SERVER_con6: sqlserver
+      USER_con6: sa
+      PASSWORD_con6: $DB_PASSWORD
+      PORT_con6: 1433
+      ENGINE_con6: mssql@dbgate-plugin-mssql
+
+  mysql:
+    image: mysql:8
+    env_file:
+      - .env
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+
+  postgres:
+    image: postgres
+    env_file:
+      - .env
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: $DB_PASSWORD
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo
+    restart: unless-stopped
+    volumes:
+      - ./mongo-data:/data/db
+  
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - ./redis-data:/data
+    ports:
+      - "6379:6379"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./mssql-data:/var/opt/mssql
+    environment:
+      SA_PASSWORD: $DB_PASSWORD
+      ACCEPT_EULA: "Y"
+
+volumes:
+  dbgate-data:
+  mysql-data:
+  postgres-data:
+  mongo-data:
+  sqlite:
+  redis-data:
+  mssql-data:
+
