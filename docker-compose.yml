@@ -91,6 +91,26 @@ services:
       SA_PASSWORD: $DB_PASSWORD
       ACCEPT_EULA: "Y"
 
+  metabase:
+    image: metabase/metabase:latest
+    env_file:
+      - .env
+    container_name: metabase
+    hostname: metabase
+    volumes:
+      - /dev/urandom:/dev/random:ro
+      - ./metabase/metabase.db:/metabase.db
+    ports:
+      - 3080:3000
+
+  jupyter:
+    image: quay.io/jupyter/all-spark-notebook
+    container_name: jupyter
+    volumes:
+      - ./jupyter:/home/jovyan/work:rw
+    ports:
+      - 8888:8888
+
 volumes:
   dbgate-data:
   mysql-data:
@@ -99,4 +119,6 @@ volumes:
   sqlite:
   redis-data:
   mssql-data:
+  metabase:
+  jupyter:
 
